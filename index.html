@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PerfDash</title>
+  <title>Performance Dashboard</title>
   <style>
     * {
       box-sizing: border-box;
@@ -15,6 +15,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #e0f7fa;
       color: #37474f;
+      overflow: hidden;
     }
     .header {
       background-color: #80deea;
@@ -22,6 +23,8 @@
       display: flex;
       align-items: center;
       padding: 12px 24px;
+      z-index: 1001;
+      position: relative;
     }
     .logo {
       font-size: 1.5rem;
@@ -30,27 +33,38 @@
     .title {
       font-size: 1.25rem;
       font-weight: 600;
+      color: #263238;
     }
-
     .container {
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      min-height: calc(100vh - 140px);
+      align-items: center;
+      height: calc(100vh - 130px); /* 100 - header - footer */
       padding: 20px;
-      text-align: center;
+      z-index: 1001;
+      position: relative;
     }
-
     #dashboard {
       background-color: #fafafa;
       border-radius: 12px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
       padding: 32px;
-      max-width: 90%;
+      text-align: center;
       width: 380px;
+      max-width: 90%;
+      transition: transform 0.2s ease;
     }
-
+    #dashboard h2 {
+      margin-bottom: 12px;
+      font-size: 1.75rem;
+      color: #263238;
+    }
+    #dashboard p {
+      font-size: 0.95rem;
+      color: #546e7a;
+      margin-bottom: 20px;
+    }
     button {
       background-color: #81d4fa;
       border: none;
@@ -60,57 +74,89 @@
       font-size: 1.05rem;
       font-weight: 600;
       padding: 14px 0;
+      transition: background-color 0.3s ease;
       width: 100%;
-      margin-top: 20px;
     }
-
+    button:hover {
+      background-color: #4fc3f7;
+    }
     #progress {
       margin-top: 20px;
       font-size: 0.95rem;
-    }
-
-    .footer {
-      background-color: #b2ebf2;
-      text-align: center;
-      padding: 12px;
-      font-size: 0.85rem;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-    }
-
-    #overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background-color: rgba(255, 255, 255, 0.9);
+      color: #546e7a;
+      min-height: 1.2em;
       z-index: 1001;
-      display: flex;
-      justify-content: center;
+      position: relative;
+    }
+    #overlay {
       align-items: center;
+      background-color: rgba(245, 245, 245, 0.94);
+      display: none;
       flex-direction: column;
+      height: 100%;
+      justify-content: center;
+      left: 0;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1001;
+      backdrop-filter: blur(2px);
     }
-
     #overlay-text {
-      background: white;
-      padding: 24px;
-      border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      background-color: #ffffff;
+      border-radius: 10px;
+      color: #37474f;
+      font-size: 1.1rem;
+      line-height: 1.4;
+      padding: 24px 32px;
+      text-align: center;
       max-width: 80%;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     }
-
     .loading-dots::after {
       content: "";
+      display: inline-block;
       animation: dots 1s steps(5, end) infinite;
     }
-
     @keyframes dots {
       0%, 20% { content: ""; }
       40% { content: "."; }
       60% { content: ".."; }
       80%, 100% { content: "..."; }
     }
-
+    .progress-bar {
+      background-color: #eceff1;
+      border-radius: 8px;
+      height: 8px;
+      margin-top: 16px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+    }
+    .progress-indicator {
+      background-color: #81d4fa;
+      height: 100%;
+      position: absolute;
+      width: 30%;
+      animation: slide 1.2s ease-in-out infinite;
+    }
+    @keyframes slide {
+      0% { left: -30%; }
+      50% { left: 50%; }
+      100% { left: 100%; }
+    }
+    .footer {
+      background-color: #b2ebf2;
+      padding: 12px 24px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #37474f;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+      z-index: 1001;
+    }
     #fullscreen-video {
       position: fixed;
       top: 0;
@@ -118,19 +164,18 @@
       width: 100vw;
       height: 100vh;
       object-fit: cover;
-      z-index: 999;
+      z-index: 1002;
       display: none;
+      pointer-events: none;
     }
-
     @media (max-width: 480px) {
-      .container {
-        padding: 20px 10px;
-      }
       #dashboard {
+        width: 100%;
         padding: 24px;
       }
       button {
         font-size: 1rem;
+        padding: 12px 0;
       }
     }
   </style>
@@ -144,88 +189,25 @@
   <div class="container">
     <div id="dashboard">
       <h2>Performance Dashboard</h2>
-      <p>Click below to run a test and see max FPS.</p>
-      <button id="test-btn">Start Test</button>
+      <p>
+        Click the button below to run a quick performance test.
+        This will measure maximum frame rate per second.
+      </p>
+      <button id="test-btn">Start Performance Test</button>
       <div id="progress"></div>
     </div>
   </div>
 
   <div id="overlay">
     <div id="overlay-text">
-      <p id="overlay-msg">Loading<span class="loading-dots"></span></p>
+      <p id="overlay-msg">Loading pfs, finding device<span class="loading-dots"></span></p>
+      <div class="progress-bar">
+        <div class="progress-indicator"></div>
+      </div>
     </div>
   </div>
 
   <footer class="footer">
     © 2025 PerfDash • Version 1.0
-  </footer>
+  </footer
 
-  <video id="fullscreen-video" autoplay playsinline loop>
-    <source src="./dinesh.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
-
-  <script>
-    document.getElementById('test-btn').addEventListener('click', async () => {
-      const progress = document.getElementById('progress');
-      const overlay = document.getElementById('overlay');
-      const overlayMsg = document.getElementById('overlay-msg');
-      const video = document.getElementById('fullscreen-video');
-
-      overlay.style.display = 'flex';
-
-      // Simulate loading steps
-      const messages = [
-        'Loading resources',
-        'Finding device configuration',
-        'Testing iqoo 9se',
-        'Maximum fps throughput',
-        'Modda Guduv'
-      ];
-
-      for (let msg of messages) {
-        overlayMsg.innerHTML = `${msg}<span class="loading-dots"></span>`;
-        await new Promise(res => setTimeout(res, 1500));
-      }
-
-      // Hide UI and show video
-      document.querySelector('.header').style.display = 'none';
-      document.querySelector('.container').style.display = 'none';
-      document.querySelector('.footer').style.display = 'none';
-      overlay.style.display = 'none';
-
-      video.style.display = 'block';
-      try {
-        await video.play();
-      } catch (err) {
-        alert('Video play failed. Check browser permissions.');
-      }
-
-      // Start downloading images
-      const total = 3;
-      for (let i = 1; i <= total; i++) {
-        try {
-          await downloadFile(`./dinesh.jpg?cb=${Date.now()}_${i}`, `dinesh-copy-${i}.jpg`);
-          await new Promise(res => setTimeout(res, 120));
-        } catch (e) {
-          console.error('Download failed', e);
-        }
-      }
-    });
-
-    async function downloadFile(url, filename) {
-      const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) throw new Error('Fetch failed');
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
-    }
-  </script>
-</body>
-</html>
