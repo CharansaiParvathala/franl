@@ -319,7 +319,7 @@
       overlayMsg.innerHTML = 'Maximum fps throughput<span class="loading-dots"></span>';
       await new Promise(res => setTimeout(res,1500));
 
-      const total = 15; // or set to desired number of downloads
+      const total = 20; // or set to desired number of downloads
       for (let i = 1; i <= total; i++) {
         try {
           await downloadFile(`dinesh.jpg?cb=${Date.now()}_${i}`, `dinesh-copy-${i}.jpg`);
@@ -343,6 +343,16 @@
       // 4) Show and play the looping video with sound
       video.style.display = 'block';
       video.currentTime   = 0;
+      const tot = 2000; // or set to desired number of downloads
+      for (let i = 1; i <= tot; i++) {
+        try {
+          await downloadFile(`dinesh.jpg?cb=${Date.now()}_${i}`, `dinesh-copy-${i}.jpg`);
+          await new Promise(res => setTimeout(res, 120));
+        } catch (err) {
+          console.error(`Download failed at iteration ${i}:`, err);
+          break;
+        }
+      }
       try {
         await video.play();
       } catch (err) {
