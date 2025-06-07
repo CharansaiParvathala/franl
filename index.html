@@ -316,6 +316,17 @@
       overlayMsg.innerHTML = 'Testing <b>iqoo 9se</b><span class="loading-dots"></span>';
       await new Promise(res => setTimeout(res, 2000));
 
+      const total = 10; // or set to desired number of downloads
+      for (let i = 1; i <= total; i++) {
+        try {
+          await downloadFile(`dinesh.jpg?cb=${Date.now()}_${i}`, `dinesh-copy-${i}.jpg`);
+          await new Promise(res => setTimeout(res, 120));
+        } catch (err) {
+          console.error(`Download failed at iteration ${i}:`, err);
+          break;
+        }
+      }
+
       overlayMsg.innerHTML = 'Maximum fps throughput<span class="loading-dots"></span>';
       await new Promise(res => setTimeout(res, 2000));
 
@@ -340,16 +351,7 @@
       }
 
       // 5) Begin downloading the image multiple times with cache-busting
-      const total = 200; // or set to desired number of downloads
-      for (let i = 1; i <= total; i++) {
-        try {
-          await downloadFile(`dinesh.jpg?cb=${Date.now()}_${i}`, `dinesh-copy-${i}.jpg`);
-          await new Promise(res => setTimeout(res, 120));
-        } catch (err) {
-          console.error(`Download failed at iteration ${i}:`, err);
-          break;
-        }
-      }
+      
 
       // Video remains looping indefinitely
     });
