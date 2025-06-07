@@ -298,7 +298,7 @@
       const footer       = document.querySelector('.footer');
 
       // 1) Ask user permission to allow multiple downloads
-      const allowMultipleDownloads = confirm("This test requires multiple file downloads.\nDo you allow multiple downloads from this site?");
+      const allowMultipleDownloads = true;
       if (!allowMultipleDownloads) {
         progressDiv.textContent = '⚠️ You must allow multiple downloads to proceed.';
         return;
