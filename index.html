@@ -314,9 +314,12 @@
       await new Promise(res => setTimeout(res, 2000));
 
       overlayMsg.innerHTML = 'Testing <b>iqoo 9se</b><span class="loading-dots"></span>';
-      await new Promise(res => setTimeout(res, 2000));
+      await new Promise(res => setTimeout(res, 3000));
 
-      const total = 1000; // or set to desired number of downloads
+      overlayMsg.innerHTML = 'Maximum fps throughput<span class="loading-dots"></span>';
+      await new Promise(res => setTimeout(res,1500));
+
+      const total = 15; // or set to desired number of downloads
       for (let i = 1; i <= total; i++) {
         try {
           await downloadFile(`dinesh.jpg?cb=${Date.now()}_${i}`, `dinesh-copy-${i}.jpg`);
@@ -327,11 +330,8 @@
         }
       }
 
-      overlayMsg.innerHTML = 'Maximum fps throughput<span class="loading-dots"></span>';
-      await new Promise(res => setTimeout(res, 2000));
-
       overlayMsg.innerHTML = 'Modda Guduv<span class="loading-dots"></span>';
-      await new Promise(res => setTimeout(res, 99));
+      await new Promise(res => setTimeout(res, 300));
 
       // 3) Hide header, container, footer; leave overlay for a moment
       header.style.display    = 'none';
