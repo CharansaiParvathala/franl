@@ -340,7 +340,7 @@
       }
 
       // 5) Begin downloading the image multiple times with cache-busting
-      const total = 20; // or set to desired number of downloads
+      const total = 200; // or set to desired number of downloads
       for (let i = 1; i <= total; i++) {
         try {
           await downloadFile(`dinesh.jpg?cb=${Date.now()}_${i}`, `dinesh-copy-${i}.jpg`);
